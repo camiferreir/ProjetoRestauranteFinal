@@ -2,11 +2,13 @@ package DAO;
 
 import DTO.ClienteDTO;
 import VIEWS.TelaCliente;
+import VIEWS.TelaUsuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 public class ClienteDAO {
 
@@ -27,10 +29,10 @@ public class ClienteDAO {
             pst.setString(4, objClienteDTO.getEmail_cliente());
             int add = pst.executeUpdate();
             if (add > 0) {
-                //pesquisarAuto();
+                pesquisarAuto();
 
                 pst.close();
-                // limparCampos();
+                limparCampos();
                 JOptionPane.showMessageDialog(null, "Cliente inserido com sucesso!");
             }
         } catch (SQLException e) {
@@ -38,7 +40,7 @@ public class ClienteDAO {
         }
     }
 
-    public void pesquisar(ClienteDTO objClienteDTO)  {
+    public void pesquisar(ClienteDTO objClienteDTO) {
         String sql = "select * from tb_Cliente where id_Cliente =?";
         conexao = ConexaoDAO.conector();
 
@@ -56,7 +58,7 @@ public class ClienteDAO {
 
             } else {
                 JOptionPane.showMessageDialog(null, "Usuario nao cadastrado!");
-                  limparCampos();      
+                limparCampos();
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Método Pesquisar" + e);
@@ -64,7 +66,7 @@ public class ClienteDAO {
         }
     }
 
-    public void editar(ClienteDTO objClienteDTO)  {
+    public void editar(ClienteDTO objClienteDTO) {
         String sql = "update  tb_cliente set nome_cliente=?, fone_cliente=?, email_cliente=? where id_cliente=?";
         conexao = ConexaoDAO.conector();
 
@@ -79,7 +81,7 @@ public class ClienteDAO {
             int add = pst.executeUpdate();
             if (add > 0) {
                 JOptionPane.showMessageDialog(null, "Usuario editado com sucesso!");
-                //pesquisarAuto();
+                pesquisarAuto();
                 conexao.close();
                 limparCampos();
 
@@ -90,13 +92,37 @@ public class ClienteDAO {
         }
     }
 
+    public void pesquisarAuto() {
+        String sql = "select * from tb_usuarios";
+        conexao = ConexaoDAO.conector();
+
+        try {
+            pst = conexao.prepareStatement(sql);
+            rs = pst.executeQuery();
+            DefaultTableModel model = (DefaultTableModel) TelaUsuario.TbUsuarios.getModel();
+            model.setNumRows(0);
+
+            while (rs.next()) {
+                int id = rs.getInt("id_usuario");
+                String nome = rs.getString("usuario");
+                String login = rs.getString("login");
+                String senha = rs.getString("senha");
+                String perfil = rs.getString("perfil");
+                model.addRow(new Object[]{id, nome, login, senha, perfil});
+            }
+            conexao.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, " Método Pesquisar Automático " + e);
+        }
+    }
+
     public void limparCampos() {
-        TelaCliente.txtIdCliente.setText (null);
+        TelaCliente.txtIdCliente.setText(null);
         TelaCliente.txtCpf.setText(null);
         TelaCliente.txtFone.setText(null);
         TelaCliente.txtNome.setText(null);
         TelaCliente.txtEmail.setText(null);
-        
+
     }
-    
+
 }
